@@ -1,78 +1,30 @@
 import React, { useState } from 'react';
-import { Radio, Waves, Users, Coins, Zap, Music, MapPin, Calendar, Lock, Unlock, ExternalLink, ArrowRight } from 'lucide-react';
+import { Radio, Waves, Users, Coins, Zap, Music, MapPin, Calendar, Lock, Unlock, ExternalLink, ArrowRight, Wifi, WifiOff, Loader2 } from 'lucide-react';
+import { useEvents, useEventCheckIn, useConnectionStatus } from './api/useVibeConnect';
 
 export default function CentralStatic() {
   const [currentVibe, setCurrentVibe] = useState('discovering');
   const [selectedEvent, setSelectedEvent] = useState(null);
   const [unlockedDrops, setUnlockedDrops] = useState([]);
-  
+
+  // API Integration
+  const { events: upcomingEvents, loading: eventsLoading, isUsingMockData } = useEvents();
+  const { checkIn, loading: checkInLoading } = useEventCheckIn();
+  const { isConnected: apiConnected, checking: checkingConnection } = useConnectionStatus();
+
   const vibes = ['chill', 'energetic', 'deep', 'experimental', 'discovering'];
-  
-  // Mock upcoming events with exclusive music drops
-  const upcomingEvents = [
-    {
-      id: 1,
-      name: "Underground Wednesdays @ Basement",
-      date: "2026-01-08",
-      time: "10:00 PM",
-      location: "Brooklyn, NY",
-      artist: "DJ Velvet",
-      genre: "Deep House",
-      vibe: "deep",
-      attendees: 47,
-      exclusiveDrop: {
-        title: "Velvet - Midnight Theory (Unreleased)",
-        unlockType: "attend",
-        claimed: false
-      },
-      vibeScore: 94,
-      description: "Intimate basement vibes with deep, hypnotic house sets"
-    },
-    {
-      id: 2,
-      name: "Friday Frequencies @ The Loft",
-      date: "2026-01-10",
-      time: "11:30 PM",
-      location: "Manhattan, NY",
-      artist: "STATIC",
-      genre: "Techno",
-      vibe: "energetic",
-      attendees: 89,
-      exclusiveDrop: {
-        title: "STATIC - Signal Loss EP (Event Only)",
-        unlockType: "attend",
-        claimed: false
-      },
-      vibeScore: 88,
-      description: "High-energy techno marathon until sunrise"
-    },
-    {
-      id: 3,
-      name: "Sunday Sessions @ Rooftop Garden",
-      date: "2026-01-12",
-      time: "4:00 PM",
-      location: "Queens, NY",
-      artist: "Lunar Collective",
-      genre: "Ambient / Experimental",
-      vibe: "chill",
-      attendees: 32,
-      exclusiveDrop: {
-        title: "Lunar Collective - Garden State (Live Recording)",
-        unlockType: "attend",
-        claimed: false
-      },
-      vibeScore: 91,
-      description: "Sunset ambient soundscapes with live instrumentation"
-    }
-  ];
-  
+
   const handleEventRSVP = (event) => {
     setSelectedEvent(event);
   };
-  
-  const unlockDrop = (eventId) => {
+
+  const unlockDrop = async (eventId) => {
     if (!unlockedDrops.includes(eventId)) {
-      setUnlockedDrops([...unlockedDrops, eventId]);
+      // In production, this would use wallet address from connected wallet
+      const result = await checkIn(eventId, 'demo-wallet-address', { lat: 0, lng: 0 });
+      if (result.success || result.drop_unlocked) {
+        setUnlockedDrops([...unlockedDrops, eventId]);
+      }
     }
   };
 
@@ -88,12 +40,30 @@ export default function CentralStatic() {
               <p className="text-xs text-stone-500">Cut Through The Static</p>
             </div>
           </div>
-          <nav className="hidden md:flex gap-6 text-sm text-stone-600">
-            <a href="#radio" className="hover:text-orange-600 transition">Radio</a>
-            <a href="#events" className="hover:text-orange-600 transition">Events</a>
-            <a href="#label" className="hover:text-orange-600 transition">Label</a>
-            <a href="#artists" className="hover:text-orange-600 transition">Artists</a>
-          </nav>
+          <div className="flex items-center gap-6">
+            <nav className="hidden md:flex gap-6 text-sm text-stone-600">
+              <a href="#radio" className="hover:text-orange-600 transition">Radio</a>
+              <a href="#events" className="hover:text-orange-600 transition">Events</a>
+              <a href="#label" className="hover:text-orange-600 transition">Label</a>
+              <a href="#artists" className="hover:text-orange-600 transition">Artists</a>
+            </nav>
+            {/* API Connection Status */}
+            <div className="flex items-center gap-2">
+              {checkingConnection ? (
+                <Loader2 className="w-4 h-4 text-stone-400 animate-spin" />
+              ) : apiConnected ? (
+                <div className="flex items-center gap-1 text-xs text-green-600">
+                  <Wifi className="w-4 h-4" />
+                  <span className="hidden sm:inline">Live</span>
+                </div>
+              ) : (
+                <div className="flex items-center gap-1 text-xs text-amber-600" title="Using demo data">
+                  <WifiOff className="w-4 h-4" />
+                  <span className="hidden sm:inline">Demo</span>
+                </div>
+              )}
+            </div>
+          </div>
         </div>
       </header>
 
@@ -225,9 +195,23 @@ export default function CentralStatic() {
           </div>
         </div>
 
+        {/* Demo Mode Notice */}
+        {isUsingMockData && (
+          <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 mb-8 flex items-center gap-3">
+            <WifiOff className="w-5 h-5 text-amber-600 flex-shrink-0" />
+            <p className="text-sm text-amber-800">
+              <strong>Demo Mode:</strong> Showing sample events. Connect your wallet to see real events from VibeConnect.
+            </p>
+          </div>
+        )}
+
         {/* Events Grid */}
         <div className="grid md:grid-cols-3 gap-6">
-          {upcomingEvents.map(event => (
+          {eventsLoading ? (
+            <div className="col-span-3 flex items-center justify-center py-16">
+              <Loader2 className="w-8 h-8 text-orange-600 animate-spin" />
+            </div>
+          ) : upcomingEvents.map(event => (
             <div key={event.id} className="bg-white/60 backdrop-blur-sm rounded-2xl border border-stone-200 overflow-hidden hover:shadow-lg transition">
               {/* Event Header */}
               <div className="bg-gradient-to-br from-orange-500 to-rose-500 p-6 text-white">
@@ -345,11 +329,19 @@ export default function CentralStatic() {
                     It won't be available on streaming platforms - only to attendees.
                   </p>
                   {!unlockedDrops.includes(selectedEvent.id) ? (
-                    <button 
+                    <button
                       onClick={() => unlockDrop(selectedEvent.id)}
-                      className="w-full bg-orange-600 text-white py-3 rounded-lg font-bold hover:bg-orange-700 transition"
+                      disabled={checkInLoading}
+                      className="w-full bg-orange-600 text-white py-3 rounded-lg font-bold hover:bg-orange-700 transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                     >
-                      Simulate Check-In & Unlock
+                      {checkInLoading ? (
+                        <>
+                          <Loader2 className="w-5 h-5 animate-spin" />
+                          Checking In...
+                        </>
+                      ) : (
+                        'Check In & Unlock Drop'
+                      )}
                     </button>
                   ) : (
                     <div className="bg-green-100 border border-green-300 rounded-lg p-4 text-center">
