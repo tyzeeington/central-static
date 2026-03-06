@@ -1,0 +1,682 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Mycelium Vision | The Dot Connector</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background: linear-gradient(135deg, #0a0a0f 0%, #1a1a2e 50%, #0f0f1a 100%);
+            color: #e0e0e0;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Animated mycelium background */
+        .mycelium-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            opacity: 0.3;
+        }
+
+        .mycelium-bg svg {
+            width: 100%;
+            height: 100%;
+        }
+
+        .node {
+            fill: #4ade80;
+            animation: pulse 3s ease-in-out infinite;
+        }
+
+        .node:nth-child(odd) {
+            animation-delay: 1.5s;
+        }
+
+        .connection {
+            stroke: #22c55e;
+            stroke-width: 1;
+            opacity: 0.4;
+            animation: flow 4s linear infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 0.4; r: 3; }
+            50% { opacity: 1; r: 5; }
+        }
+
+        @keyframes flow {
+            0% { stroke-dashoffset: 100; }
+            100% { stroke-dashoffset: 0; }
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        header {
+            text-align: center;
+            padding: 4rem 2rem;
+        }
+
+        h1 {
+            font-size: 3.5rem;
+            background: linear-gradient(135deg, #22c55e, #4ade80, #86efac);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 1rem;
+        }
+
+        .subtitle {
+            font-size: 1.5rem;
+            color: #94a3b8;
+            font-weight: 300;
+        }
+
+        .section {
+            margin: 4rem 0;
+            padding: 2rem;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 1rem;
+            border: 1px solid rgba(74, 222, 128, 0.2);
+        }
+
+        h2 {
+            font-size: 2rem;
+            color: #4ade80;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .comparison {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        @media (max-width: 768px) {
+            .comparison {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .model {
+            padding: 2rem;
+            border-radius: 1rem;
+            position: relative;
+        }
+
+        .empire {
+            background: linear-gradient(135deg, rgba(220, 38, 38, 0.1), rgba(127, 29, 29, 0.05));
+            border: 1px solid rgba(220, 38, 38, 0.3);
+        }
+
+        .mycelium {
+            background: linear-gradient(135deg, rgba(34, 197, 94, 0.1), rgba(20, 83, 45, 0.05));
+            border: 1px solid rgba(34, 197, 94, 0.3);
+        }
+
+        .model h3 {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .empire h3 { color: #f87171; }
+        .mycelium h3 { color: #4ade80; }
+
+        .model ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .model li {
+            padding: 0.75rem 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            align-items: flex-start;
+            gap: 0.75rem;
+        }
+
+        .model li:last-child {
+            border-bottom: none;
+        }
+
+        .empire li::before {
+            content: "✗";
+            color: #f87171;
+            font-weight: bold;
+        }
+
+        .mycelium li::before {
+            content: "✓";
+            color: #4ade80;
+            font-weight: bold;
+        }
+
+        /* Visual diagrams */
+        .diagram-container {
+            display: flex;
+            justify-content: center;
+            gap: 4rem;
+            margin: 3rem 0;
+            flex-wrap: wrap;
+        }
+
+        .diagram {
+            text-align: center;
+        }
+
+        .diagram svg {
+            max-width: 300px;
+            height: 250px;
+        }
+
+        .diagram-label {
+            margin-top: 1rem;
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+
+        .empire-label { color: #f87171; }
+        .mycelium-label { color: #4ade80; }
+
+        /* Security section */
+        .security-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+
+        .security-card {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            border: 1px solid rgba(74, 222, 128, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        .security-card:hover {
+            border-color: rgba(74, 222, 128, 0.5);
+            transform: translateY(-2px);
+        }
+
+        .security-card h4 {
+            color: #4ade80;
+            font-size: 1.1rem;
+            margin-bottom: 0.75rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .security-card p {
+            color: #94a3b8;
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+
+        /* Auth evolution timeline */
+        .timeline {
+            position: relative;
+            padding: 2rem 0;
+            margin: 2rem 0;
+        }
+
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 3px;
+            height: 100%;
+            background: linear-gradient(to bottom, #dc2626, #f59e0b, #22c55e);
+            border-radius: 2px;
+        }
+
+        @media (max-width: 768px) {
+            .timeline::before {
+                left: 20px;
+            }
+        }
+
+        .timeline-item {
+            display: flex;
+            justify-content: flex-end;
+            padding-right: calc(50% + 30px);
+            position: relative;
+            margin-bottom: 2rem;
+        }
+
+        .timeline-item:nth-child(even) {
+            justify-content: flex-start;
+            padding-right: 0;
+            padding-left: calc(50% + 30px);
+        }
+
+        @media (max-width: 768px) {
+            .timeline-item,
+            .timeline-item:nth-child(even) {
+                padding-left: 50px;
+                padding-right: 0;
+                justify-content: flex-start;
+            }
+        }
+
+        .timeline-content {
+            background: rgba(0, 0, 0, 0.4);
+            padding: 1.5rem;
+            border-radius: 1rem;
+            max-width: 400px;
+            position: relative;
+        }
+
+        .timeline-item:first-child .timeline-content {
+            border-left: 3px solid #dc2626;
+        }
+
+        .timeline-item:nth-child(2) .timeline-content {
+            border-left: 3px solid #f59e0b;
+        }
+
+        .timeline-item:last-child .timeline-content {
+            border-left: 3px solid #22c55e;
+        }
+
+        .timeline-content h4 {
+            margin-bottom: 0.5rem;
+        }
+
+        .timeline-item:first-child h4 { color: #f87171; }
+        .timeline-item:nth-child(2) h4 { color: #fbbf24; }
+        .timeline-item:last-child h4 { color: #4ade80; }
+
+        .timeline-content p {
+            color: #94a3b8;
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+
+        /* Philosophy quote */
+        .philosophy {
+            text-align: center;
+            padding: 3rem;
+            background: linear-gradient(135deg, rgba(34, 197, 94, 0.1), transparent);
+            border-radius: 1rem;
+            margin: 3rem 0;
+        }
+
+        .philosophy blockquote {
+            font-size: 1.8rem;
+            font-style: italic;
+            color: #4ade80;
+            line-height: 1.4;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .philosophy cite {
+            display: block;
+            margin-top: 1.5rem;
+            font-size: 1rem;
+            color: #94a3b8;
+            font-style: normal;
+        }
+
+        /* Tech implementation */
+        .tech-stack {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+
+        .tech-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 1rem;
+            padding: 1.5rem;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 1rem;
+            border-left: 3px solid #4ade80;
+        }
+
+        .tech-icon {
+            font-size: 2rem;
+            flex-shrink: 0;
+        }
+
+        .tech-item h4 {
+            color: #4ade80;
+            margin-bottom: 0.5rem;
+        }
+
+        .tech-item p {
+            color: #94a3b8;
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+
+        footer {
+            text-align: center;
+            padding: 3rem;
+            color: #64748b;
+        }
+
+        footer a {
+            color: #4ade80;
+            text-decoration: none;
+        }
+
+        /* Strikethrough for obsolete */
+        .obsolete {
+            text-decoration: line-through;
+            opacity: 0.5;
+        }
+    </style>
+</head>
+<body>
+    <!-- Animated mycelium background -->
+    <div class="mycelium-bg">
+        <svg viewBox="0 0 1000 600" preserveAspectRatio="xMidYMid slice">
+            <!-- Connection lines -->
+            <g class="connections">
+                <line class="connection" x1="100" y1="100" x2="200" y2="150" stroke-dasharray="5,5"/>
+                <line class="connection" x1="200" y1="150" x2="350" y2="120" stroke-dasharray="5,5"/>
+                <line class="connection" x1="350" y1="120" x2="450" y2="200" stroke-dasharray="5,5"/>
+                <line class="connection" x1="200" y1="150" x2="180" y2="280" stroke-dasharray="5,5"/>
+                <line class="connection" x1="180" y1="280" x2="320" y2="350" stroke-dasharray="5,5"/>
+                <line class="connection" x1="320" y1="350" x2="500" y2="300" stroke-dasharray="5,5"/>
+                <line class="connection" x1="500" y1="300" x2="650" y2="250" stroke-dasharray="5,5"/>
+                <line class="connection" x1="650" y1="250" x2="800" y2="300" stroke-dasharray="5,5"/>
+                <line class="connection" x1="800" y1="300" x2="900" y2="200" stroke-dasharray="5,5"/>
+                <line class="connection" x1="450" y1="200" x2="500" y2="300" stroke-dasharray="5,5"/>
+                <line class="connection" x1="350" y1="120" x2="500" y2="80" stroke-dasharray="5,5"/>
+                <line class="connection" x1="500" y1="80" x2="700" y2="120" stroke-dasharray="5,5"/>
+                <line class="connection" x1="700" y1="120" x2="650" y2="250" stroke-dasharray="5,5"/>
+                <line class="connection" x1="320" y1="350" x2="450" y2="450" stroke-dasharray="5,5"/>
+                <line class="connection" x1="450" y1="450" x2="600" y2="400" stroke-dasharray="5,5"/>
+                <line class="connection" x1="600" y1="400" x2="750" y2="450" stroke-dasharray="5,5"/>
+                <line class="connection" x1="800" y1="300" x2="750" y2="450" stroke-dasharray="5,5"/>
+            </g>
+            <!-- Nodes -->
+            <g class="nodes">
+                <circle class="node" cx="100" cy="100" r="4"/>
+                <circle class="node" cx="200" cy="150" r="5"/>
+                <circle class="node" cx="350" cy="120" r="4"/>
+                <circle class="node" cx="450" cy="200" r="3"/>
+                <circle class="node" cx="180" cy="280" r="4"/>
+                <circle class="node" cx="320" cy="350" r="5"/>
+                <circle class="node" cx="500" cy="300" r="6"/>
+                <circle class="node" cx="650" cy="250" r="4"/>
+                <circle class="node" cx="800" cy="300" r="5"/>
+                <circle class="node" cx="900" cy="200" r="4"/>
+                <circle class="node" cx="500" cy="80" r="3"/>
+                <circle class="node" cx="700" cy="120" r="4"/>
+                <circle class="node" cx="450" cy="450" r="4"/>
+                <circle class="node" cx="600" cy="400" r="5"/>
+                <circle class="node" cx="750" cy="450" r="4"/>
+            </g>
+        </svg>
+    </div>
+
+    <div class="container">
+        <header>
+            <h1>The Mycelium Vision</h1>
+            <p class="subtitle">Why empires fall and networks endure</p>
+        </header>
+
+        <!-- Philosophy Quote -->
+        <div class="philosophy">
+            <blockquote>
+                "There is no center to capture. No throne to seize. No password database to breach.<br/>
+                The network is the organism. The organism is the network."
+            </blockquote>
+            <cite>— The Dot Connector Philosophy</cite>
+        </div>
+
+        <!-- Visual Comparison -->
+        <section class="section">
+            <h2>🏛️ vs 🍄 Two Models of Organization</h2>
+
+            <div class="diagram-container">
+                <div class="diagram">
+                    <svg viewBox="0 0 200 180">
+                        <!-- Empire: Hub and Spoke -->
+                        <circle cx="100" cy="90" r="25" fill="#dc2626" opacity="0.8"/>
+                        <text x="100" y="95" text-anchor="middle" fill="white" font-size="10" font-weight="bold">EMPEROR</text>
+
+                        <!-- Spokes -->
+                        <line x1="100" y1="65" x2="100" y2="20" stroke="#f87171" stroke-width="2"/>
+                        <line x1="125" y1="90" x2="175" y2="90" stroke="#f87171" stroke-width="2"/>
+                        <line x1="100" y1="115" x2="100" y2="160" stroke="#f87171" stroke-width="2"/>
+                        <line x1="75" y1="90" x2="25" y2="90" stroke="#f87171" stroke-width="2"/>
+                        <line x1="118" y1="72" x2="155" y2="35" stroke="#f87171" stroke-width="2"/>
+                        <line x1="118" y1="108" x2="155" y2="145" stroke="#f87171" stroke-width="2"/>
+                        <line x1="82" y1="72" x2="45" y2="35" stroke="#f87171" stroke-width="2"/>
+                        <line x1="82" y1="108" x2="45" y2="145" stroke="#f87171" stroke-width="2"/>
+
+                        <!-- Subjects -->
+                        <circle cx="100" cy="15" r="8" fill="#fca5a5"/>
+                        <circle cx="180" cy="90" r="8" fill="#fca5a5"/>
+                        <circle cx="100" cy="165" r="8" fill="#fca5a5"/>
+                        <circle cx="20" cy="90" r="8" fill="#fca5a5"/>
+                        <circle cx="160" cy="30" r="8" fill="#fca5a5"/>
+                        <circle cx="160" cy="150" r="8" fill="#fca5a5"/>
+                        <circle cx="40" cy="30" r="8" fill="#fca5a5"/>
+                        <circle cx="40" cy="150" r="8" fill="#fca5a5"/>
+                    </svg>
+                    <div class="diagram-label empire-label">Empire Model</div>
+                    <p style="color: #94a3b8; font-size: 0.85rem; margin-top: 0.5rem;">Single point of failure</p>
+                </div>
+
+                <div class="diagram">
+                    <svg viewBox="0 0 200 180">
+                        <!-- Mycelium: Distributed mesh -->
+                        <line x1="40" y1="40" x2="80" y2="60" stroke="#22c55e" stroke-width="1.5" opacity="0.7"/>
+                        <line x1="80" y1="60" x2="120" y2="40" stroke="#22c55e" stroke-width="1.5" opacity="0.7"/>
+                        <line x1="120" y1="40" x2="160" y2="60" stroke="#22c55e" stroke-width="1.5" opacity="0.7"/>
+                        <line x1="80" y1="60" x2="60" y2="100" stroke="#22c55e" stroke-width="1.5" opacity="0.7"/>
+                        <line x1="60" y1="100" x2="100" y2="90" stroke="#22c55e" stroke-width="1.5" opacity="0.7"/>
+                        <line x1="100" y1="90" x2="140" y2="100" stroke="#22c55e" stroke-width="1.5" opacity="0.7"/>
+                        <line x1="140" y1="100" x2="160" y2="60" stroke="#22c55e" stroke-width="1.5" opacity="0.7"/>
+                        <line x1="60" y1="100" x2="40" y2="140" stroke="#22c55e" stroke-width="1.5" opacity="0.7"/>
+                        <line x1="40" y1="140" x2="80" y2="150" stroke="#22c55e" stroke-width="1.5" opacity="0.7"/>
+                        <line x1="80" y1="150" x2="120" y2="140" stroke="#22c55e" stroke-width="1.5" opacity="0.7"/>
+                        <line x1="120" y1="140" x2="160" y2="150" stroke="#22c55e" stroke-width="1.5" opacity="0.7"/>
+                        <line x1="140" y1="100" x2="120" y2="140" stroke="#22c55e" stroke-width="1.5" opacity="0.7"/>
+                        <line x1="100" y1="90" x2="80" y2="150" stroke="#22c55e" stroke-width="1.5" opacity="0.7"/>
+                        <line x1="120" y1="40" x2="100" y2="90" stroke="#22c55e" stroke-width="1.5" opacity="0.7"/>
+
+                        <!-- Nodes (all equal) -->
+                        <circle cx="40" cy="40" r="8" fill="#4ade80"/>
+                        <circle cx="80" cy="60" r="8" fill="#4ade80"/>
+                        <circle cx="120" cy="40" r="8" fill="#4ade80"/>
+                        <circle cx="160" cy="60" r="8" fill="#4ade80"/>
+                        <circle cx="60" cy="100" r="8" fill="#4ade80"/>
+                        <circle cx="100" cy="90" r="8" fill="#4ade80"/>
+                        <circle cx="140" cy="100" r="8" fill="#4ade80"/>
+                        <circle cx="40" cy="140" r="8" fill="#4ade80"/>
+                        <circle cx="80" cy="150" r="8" fill="#4ade80"/>
+                        <circle cx="120" cy="140" r="8" fill="#4ade80"/>
+                        <circle cx="160" cy="150" r="8" fill="#4ade80"/>
+                    </svg>
+                    <div class="diagram-label mycelium-label">Mycelium Model</div>
+                    <p style="color: #94a3b8; font-size: 0.85rem; margin-top: 0.5rem;">No center to capture</p>
+                </div>
+            </div>
+
+            <div class="comparison">
+                <div class="model empire">
+                    <h3>🏛️ The Empire Model</h3>
+                    <ul>
+                        <li>Central authority controls all access</li>
+                        <li>Single password database = honeypot for attackers</li>
+                        <li>Capture the king, control the kingdom</li>
+                        <li>Admin privileges create "overlords"</li>
+                        <li>Breach one system, compromise everyone</li>
+                        <li>Trust flows top-down from authority</li>
+                    </ul>
+                </div>
+
+                <div class="model mycelium">
+                    <h3>🍄 The Mycelium Model</h3>
+                    <ul>
+                        <li>Each node authenticates itself</li>
+                        <li>No central database to steal</li>
+                        <li>Remove any node, network persists</li>
+                        <li>Every participant has equal sovereignty</li>
+                        <li>Cryptographic proofs, not permissions</li>
+                        <li>Trust emerges from verified connections</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- Authentication Evolution -->
+        <section class="section">
+            <h2>🔐 The Death of Passwords</h2>
+            <p style="color: #94a3b8; font-size: 1.1rem; margin-bottom: 2rem;">
+                Authentication is evolving from "prove you know a secret" to "prove you ARE who you claim."
+            </p>
+
+            <div class="timeline">
+                <div class="timeline-item">
+                    <div class="timeline-content">
+                        <h4>❌ The Password Era (1960s-2020s)</h4>
+                        <p>Central databases of hashed secrets. Data breaches exposed billions. "Forgot password?" became a way of life. The emperor held the keys.</p>
+                    </div>
+                </div>
+
+                <div class="timeline-item">
+                    <div class="timeline-content">
+                        <h4>⚠️ The 2FA Transition (2010s-now)</h4>
+                        <p>Added a second factor, but still centralized. Now you need two things the emperor controls. Better, but still empire architecture.</p>
+                    </div>
+                </div>
+
+                <div class="timeline-item">
+                    <div class="timeline-content">
+                        <h4>✓ The Cryptographic Future (Now)</h4>
+                        <p>Wallet signatures. Self-sovereign identity. You don't prove you know a password — you prove you control your private key. No database to breach. No overlord required.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- How VibeConnect Does It -->
+        <section class="section">
+            <h2>🌐 How The Dot Connector Implements Mycelium Auth</h2>
+
+            <div class="security-grid">
+                <div class="security-card">
+                    <h4>🔑 Wallet-Based Login</h4>
+                    <p>No <span class="obsolete">username/password</span>. Sign a message with your wallet to prove ownership. Your private key never leaves your device.</p>
+                </div>
+
+                <div class="security-card">
+                    <h4>📝 Cryptographic Signatures</h4>
+                    <p>Challenge-response authentication. The network verifies you mathematically, not by checking a database of secrets.</p>
+                </div>
+
+                <div class="security-card">
+                    <h4>🎫 Stateless JWT Tokens</h4>
+                    <p>Sessions are self-contained proofs. No central session store to hack. Each token carries its own verifiable claims.</p>
+                </div>
+
+                <div class="security-card">
+                    <h4>🛡️ Rate Limiting per Node</h4>
+                    <p>Protection at every endpoint. No central chokepoint. Abuse is contained locally, not systemically.</p>
+                </div>
+
+                <div class="security-card">
+                    <h4>🔗 Connection-Based Privacy</h4>
+                    <p>Your data visibility flows through verified connections, not admin permissions. You control who sees what.</p>
+                </div>
+
+                <div class="security-card">
+                    <h4>🌱 Self-Sovereign Identity</h4>
+                    <p>Your wallet IS your identity. No company owns your account. No platform can lock you out of being you.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- The Tech Stack -->
+        <section class="section">
+            <h2>⚡ The Technology That Makes It Real</h2>
+
+            <div class="tech-stack">
+                <div class="tech-item">
+                    <div class="tech-icon">🪙</div>
+                    <div>
+                        <h4>$BLOOM on Base</h4>
+                        <p>1:1 USDT-pegged ERC-20 token. Value flows through the network like nutrients through mycelium. No central bank required.</p>
+                    </div>
+                </div>
+
+                <div class="tech-item">
+                    <div class="tech-icon">🎧</div>
+                    <div>
+                        <h4>CentralStatic Radio</h4>
+                        <p>AI-curated music discovery. The algorithm serves the listener, not the record label. Rewards flow to creators and curators alike.</p>
+                    </div>
+                </div>
+
+                <div class="tech-item">
+                    <div class="tech-icon">🤝</div>
+                    <div>
+                        <h4>VibeConnect Events</h4>
+                        <p>Consciousness-based matching at IRL gatherings. Connect through resonance, not resumes. No personal info exchanged until mutual interest.</p>
+                    </div>
+                </div>
+
+                <div class="tech-item">
+                    <div class="tech-icon">🎨</div>
+                    <div>
+                        <h4>NFT Connection Memories</h4>
+                        <p>Meaningful moments minted as unique tokens. Your network history becomes portable, verifiable, and truly yours.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Final Philosophy -->
+        <section class="section" style="text-align: center;">
+            <h2 style="justify-content: center;">🚀 The Multiplanetary Thesis</h2>
+            <p style="font-size: 1.2rem; color: #94a3b8; max-width: 700px; margin: 1rem auto;">
+                Empires require borders to defend. Mycelium networks have no borders — they simply grow wherever conditions allow.
+            </p>
+            <p style="font-size: 1.2rem; color: #94a3b8; max-width: 700px; margin: 1rem auto;">
+                When humanity spreads across planets, which architecture survives the 4-24 minute communication delay to Mars? The one waiting for permission from Earth HQ... or the one where each node can authenticate locally and sync when possible?
+            </p>
+            <p style="font-size: 1.4rem; color: #4ade80; margin-top: 2rem; font-weight: 600;">
+                We're not building an app. We're building infrastructure for wherever life goes next.
+            </p>
+        </section>
+
+        <footer>
+            <p>The Dot Connector • Cultivating connections across the cosmic mycelium</p>
+            <p style="margin-top: 0.5rem;">
+                <a href="https://thedotconnector.biz">thedotconnector.biz</a>
+            </p>
+        </footer>
+    </div>
+</body>
+</html>

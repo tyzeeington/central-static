@@ -3,7 +3,8 @@
   "outputDirectory": "build",
   "framework": "create-react-app",
   "rewrites": [
-    { "source": "/(.*)", "destination": "/" }
+    { "source": "/radio", "destination": "/index.html" },
+    { "source": "/radio/(.*)", "destination": "/index.html" }
   ],
   "headers": [
     {
@@ -12,5 +13,9 @@
         { "key": "Access-Control-Allow-Origin", "value": "*" }
       ]
     }
+  ],
+  "routes": [
+    { "src": "/landing.html", "dest": "/landing.html" },
+    { "src": "/", "dest": "/index.html" }
   ]
 }
